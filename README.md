@@ -1,7 +1,7 @@
 # Dota 2 Helper
 
 <p align="center">
-  <img src="appicon.png" alt="Dota 2 Helper App Icon" width="200"/>
+  <img src="build/appicon.png" alt="Dota 2 Helper App Icon" width="200"/>
 </p>
 
 Dota 2 Helper is a comprehensive mobile companion application designed to elevate your gameplay. It provides real-time drafting analysis, meta statistics and in-game timers to help you make informed decisions on the battlefield.
