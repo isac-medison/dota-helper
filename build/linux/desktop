@@ -1,0 +1,13 @@
+[Desktop Entry]
+Version=1.0
+Name=My Product
+Comment=A dota-helper application
+# The Exec line includes %u to pass the URL to the application
+Exec=/usr/local/bin/dota-helper.exe %u
+Terminal=false
+Type=Application
+Icon=dota-helper.exe
+Categories=Utility;
+StartupWMClass=dota-helper.exe
+
+ 
