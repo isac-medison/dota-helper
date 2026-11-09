@@ -64,7 +64,7 @@ function loadProfiles(): string[] {
 }
 
 export default function App() {
-  const [bracket, setBracket] = useState<number | null>(null);
+  const [bracket, setBracket] = useState<number | null>(4);
 
   const { data: heroes, isPending, error } = useHeroes();
   const { data: meta } = useMetaStatus();
@@ -159,20 +159,19 @@ export default function App() {
         </div>
 
         <div className="draft-page__draft">
-                      <label className="bracket-select">
-              Бракет
-              <select
-                value={bracket ?? ""}
-                onChange={(e) => setBracket(e.target.value ? Number(e.target.value) : null)}
-              >
-                <option value="">Авто (з рангу паті)</option>
-                {BRACKETS.map((b) => (
-                  <option key={b.value} value={b.value}>
-                    {b.label}
-                  </option>
-                ))}
-              </select>
-            </label>
+          <label className="bracket-select">
+          Бракет
+          <select
+            value={bracket ?? ""}
+            onChange={(e) => setBracket(Number(e.target.value))}
+          >
+            {BRACKETS.map((b) => (
+              <option key={b.value} value={b.value}>
+                {b.label}
+              </option>
+            ))}
+          </select>
+        </label>
           <div className="draft-settings">
            <label className="bracket-select">
               Позиції
