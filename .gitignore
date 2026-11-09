@@ -10,3 +10,6 @@ build/ios/xcode/gen/
 build/android/overlay.json
 build/android/gen/
 .env
+dota-helper.db
+dota-helper.db-shm
+dota-helper.db-wal
