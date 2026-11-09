@@ -9,16 +9,12 @@ export type Bracket = number;
 export interface Hero {
     "id": number;
     "localizedName": string;
-
-    /**
-     * Fetched from OpenDota (e.g., "/apps/dota2/images/dota_react/heroes/antimage.png?")
-     */
     "img": string;
+    "iconUrl": string;
 
     /**
-     * Constructed for the frontend
+     * Or however you store roles
      */
-    "iconUrl": string;
     "roles": string[] | null;
 }
 

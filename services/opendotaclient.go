@@ -10,6 +10,13 @@ import (
 
 const openDotaBaseUrl = "https://api.opendota.com/api"
 
+type OpenDotaHeroDTO struct {
+	Id            int      `json:"id"`
+	LocalizedName string   `json:"localized_name"` // Matches OpenDota exactly
+	Img           string   `json:"img"`
+	Roles         []string `json:"roles"`
+}
+
 type OpenDotaClient struct {
 	Http *http.Client
 }
@@ -31,16 +38,21 @@ func (c *OpenDotaClient) GetHeroesAsync(ctx context.Context) ([]models.Hero, err
 		return nil, fmt.Errorf("OpenDota API error: %s", resp.Status)
 	}
 
-	// Equivalent to Dictionary<string, OpenDotaHero>
-	var heroesMap map[string]models.Hero
+	// 2. Decode into the new DTO map
+	var heroesMap map[string]OpenDotaHeroDTO
 	if err := json.NewDecoder(resp.Body).Decode(&heroesMap); err != nil {
 		return nil, fmt.Errorf("failed to decode JSON: %w", err)
 	}
 
-	// Equivalent to .Values.ToList()
+	// 3. Map the DTOs into your standard models.Hero
 	heroes := make([]models.Hero, 0, len(heroesMap))
 	for _, h := range heroesMap {
-		heroes = append(heroes, h)
+		heroes = append(heroes, models.Hero{
+			Id:            h.Id,
+			LocalizedName: h.LocalizedName,
+			Img:           h.Img,
+			Roles:         h.Roles,
+		})
 	}
 
 	return heroes, nil

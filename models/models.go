@@ -6,10 +6,10 @@ import (
 
 type Hero struct {
 	Id            int      `json:"id" gorm:"primaryKey"`
-	LocalizedName string   `json:"localizedName"`
-	Img           string   `json:"img"`     // Fetched from OpenDota (e.g., "/apps/dota2/images/dota_react/heroes/antimage.png?")
-	IconUrl       string   `json:"iconUrl"` // Constructed for the frontend
-	Roles         []string `json:"roles" gorm:"serializer:json"`
+	LocalizedName string   `json:"localizedName" gorm:"column:localized_name"`
+	Img           string   `json:"img"`
+	IconUrl       string   `json:"iconUrl"`
+	Roles         []string `json:"roles" gorm:"serializer:json"` // Or however you store roles
 }
 
 // --- Enums ---
