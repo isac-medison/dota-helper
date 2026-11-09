@@ -1,7 +1,7 @@
-// services/meta.go
 package services
 
 import (
+	"context"
 	"dota-helper/models"
 	"dota-helper/utils"
 	"errors"
@@ -10,8 +10,11 @@ import (
 )
 
 type Meta struct {
-	DB        *gorm.DB
-	Refresher *MetaRefresher
+	DB               *gorm.DB
+	MetaImporter     *MetaImporter
+	Token            string
+	isImporting      bool
+	lastImportFailed bool // 1. Add the failure tracker
 }
 
 func (m *Meta) GetStatus() (*models.MetaStatusDto, error) {
@@ -19,55 +22,47 @@ func (m *Meta) GetStatus() (*models.MetaStatusDto, error) {
 
 	err := m.DB.Order("id desc").First(&lastImport).Error
 
-	// 1. If it's a REAL database connection error, return it.
-	// We specifically IGNORE ErrRecordNotFound.
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, err
 	}
 
-	// 2. ALWAYS return a valid status object to the frontend, even if the DB is empty!
 	status := &models.MetaStatusDto{
-		Importing:        m.Refresher.Importing(),
-		LastImportFailed: m.Refresher.LastImportFailed(),
-		Enabled:          m.Refresher.Enabled(),
+		Importing:        m.isImporting,
+		LastImportFailed: m.lastImportFailed, // 2. Pass it to React
+		RefreshEnabled:   m.Token != "",
 	}
 
-	// 3. Only populate the dates and counts if a record ACTUALLY existed
 	if err == nil {
-		status.CompletedAtUtc = &lastImport.CompletedAtUtc
+		status.UpdatedAtUtc = &lastImport.CompletedAtUtc
 		status.MatchupCount = lastImport.MatchupCount
 		status.MetaCount = lastImport.MetaCount
 	}
 
-	status.ManualRefreshAvailableAtUtc = m.Refresher.ManualRefreshAvailableAtUtc()
 	utils.SanitizeDefaults(status)
-	// 4. IMPORTANT: Return nil for the error!
 	return status, nil
 }
-
-func (s *Meta) Refresh() error {
-	success := s.Refresher.RequestRefresh()
-	if !success {
-		// Returning an error in Wails rejects the JS Promise.
-		// This replaces HTTP 409 Conflict.
-		return errors.New("Import is running, on cooldown, or Stratz:Token is not configured")
+func (m *Meta) Refresh() error {
+	if m.Token == "" {
+		return errors.New("Stratz:Token is not configured")
+	}
+	if m.isImporting {
+		return errors.New("already importing")
 	}
 
-	// Returning nil acts like HTTP 202 Accepted.
-	return nil
-}
+	// 1. FLIP FLAGS HERE (Synchronously, before replying to React)
+	m.isImporting = true
+	m.lastImportFailed = false
 
-func (m *Meta) RequestRefresh() error {
-	if m.Refresher == nil {
-		return errors.New("refresher is not initialized")
-	}
+	go func() {
+		// 2. Clear it only when the heavy lifting finishes
+		defer func() { m.isImporting = false }()
 
-	// Calls the method on the background worker we wrote earlier
-	started := m.Refresher.RequestRefresh()
-	if !started {
-		// Mimics the 409 Conflict logic from your C# API
-		return errors.New("already importing or on cooldown")
-	}
+		err := m.MetaImporter.ImportAsync(context.Background())
+		if err != nil {
+			m.lastImportFailed = true
+			println("Manual import failed:", err.Error())
+		}
+	}()
 
-	return nil
+	return nil // React gets the response instantly
 }

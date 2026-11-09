@@ -83,12 +83,12 @@ type PlayerHero struct {
 }
 
 type MetaStatusDto struct {
-	CompletedAtUtc              *time.Time `json:"completedAtUtc"`
+	Importing                   bool       `json:"importing"`
+	LastImportFailed            bool       `json:"lastImportFailed"`
+	RefreshEnabled              bool       `json:"refreshEnabled"` // React expects this!
+	UpdatedAtUtc                *time.Time `json:"updatedAtUtc"`   // React expects this!
 	MatchupCount                int        `json:"matchupCount"`
 	MetaCount                   int        `json:"metaCount"`
-	Importing                   bool       `json:"importing"`
-	Enabled                     bool       `json:"enabled"`
-	LastImportFailed            bool       `json:"lastImportFailed"`
 	ManualRefreshAvailableAtUtc *time.Time `json:"manualRefreshAvailableAtUtc"`
 }
 

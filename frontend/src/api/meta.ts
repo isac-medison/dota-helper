@@ -1,8 +1,8 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
 import type { components } from "./schema";
 
 // Import Wails bindings for the Meta service
-import { GetStatus, RequestRefresh } from "../../bindings/dota-helper/services/meta";
+import { GetStatus, Refresh } from "../../bindings/dota-helper/services/meta";
 
 export type MetaStatus = components["schemas"]["MetaStatusDto"];
 
@@ -25,21 +25,12 @@ export function useMetaStatus() {
 
 export function useRefreshMeta() {
   const queryClient = useQueryClient();
+  
   return useMutation({
-    mutationFn: async () => {
-      try {
-        // Direct IPC call to Go
-        await RequestRefresh();
-      } catch (e: any) {
-        // Go returns errors as strings. 
-        // If your Go code throws a specific error for "already importing", catch it here.
-        // Otherwise, Wails handles it cleanly.
-        if (typeof e === "string" && (e.includes("already") || e.includes("importing"))) {
-          return; // Equivalent to ignoring 409
-        }
-        throw e;
-      }
+    mutationFn: () => Refresh(),
+    onSuccess: () => {
+      // 3. Force React to instantly fetch GetStatus() to catch importing=true
+      queryClient.invalidateQueries({ queryKey: ["meta-status"] });
     },
-    onSettled: () => queryClient.invalidateQueries({ queryKey: ["meta-status"] }),
   });
 }

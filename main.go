@@ -80,8 +80,6 @@ func main() {
 		MetaCache: metaCache,
 	}
 
-	refresher := services.NewMetaRefresher(db, stratzToken, metaImporter)
-
 	// Core application services (Controllers)
 	playersService := &services.Players{DB: db}
 
@@ -90,20 +88,14 @@ func main() {
 		log.Printf("Warning: Initial hero sync failed: %v", err)
 	}
 
-	// 5. Setup Background Context & Worker
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	go refresher.Run(ctx)
-
 	app := application.New(application.Options{
 		Name:        "dota-helper",
 		Description: "A Dota 2 helper application.",
 		Services: []application.Service{
 			application.NewService(&services.Heroes{DB: db, IconClient: iconHttp}),
-			application.NewService(&services.Meta{DB: db, Refresher: refresher}),
 			application.NewService(&services.Players{DB: db, Stratz: stratzClient}),
 			application.NewService(&services.Recommendations{Players: playersService, MetaCache: metaCache}),
+			application.NewService(&services.Meta{DB: db, MetaImporter: metaImporter, Token: stratzToken}),
 		},
 		Assets: application.AssetOptions{
 			Handler: application.AssetFileServerFS(assets),

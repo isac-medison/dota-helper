@@ -24,12 +24,20 @@ export interface HeroImpact {
 }
 
 export interface MetaStatusDto {
-    "completedAtUtc": string | null;
+    "importing": boolean;
+    "lastImportFailed": boolean;
+
+    /**
+     * React expects this!
+     */
+    "refreshEnabled": boolean;
+
+    /**
+     * React expects this!
+     */
+    "updatedAtUtc": string | null;
     "matchupCount": number;
     "metaCount": number;
-    "importing": boolean;
-    "enabled": boolean;
-    "lastImportFailed": boolean;
     "manualRefreshAvailableAtUtc": string | null;
 }
 

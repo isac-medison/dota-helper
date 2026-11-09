@@ -47,8 +47,7 @@ export function AppHeader({ player, steamId }: Props) {
           <dd>
             {meta?.updatedAtUtc ? (
               <span title={new Date(meta.updatedAtUtc).toLocaleString()}>
-                {timeAgo(meta.updatedAtUtc, now)} · {meta.matchupCount.toLocaleString()} матчапів ·
-                авто раз на добу
+                {timeAgo(meta.updatedAtUtc, now)} · {meta.matchupCount.toLocaleString()} матчапів 
               </span>
             ) : (
               <span>ще не завантажена</span>

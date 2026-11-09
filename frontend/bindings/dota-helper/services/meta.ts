@@ -16,7 +16,3 @@ export function GetStatus(): $CancellablePromise<models$0.MetaStatusDto | null> 
 export function Refresh(): $CancellablePromise<void> {
     return $Call.ByID(3938247771);
 }
-
-export function RequestRefresh(): $CancellablePromise<void> {
-    return $Call.ByID(65112992);
-}
