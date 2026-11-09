@@ -102,7 +102,7 @@ func main() {
 		Services: []application.Service{
 			application.NewService(&services.Heroes{DB: db, IconClient: iconHttp}),
 			application.NewService(&services.Meta{DB: db, Refresher: refresher}),
-			application.NewService(&services.Players{DB: db}),
+			application.NewService(&services.Players{DB: db, Stratz: stratzClient}),
 			application.NewService(&services.Recommendations{Players: playersService, MetaCache: metaCache}),
 		},
 		Assets: application.AssetOptions{
