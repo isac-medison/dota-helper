@@ -1,0 +1,59 @@
+.player-card {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px 24px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.player-card small {
+  display: block;
+  color: var(--text);
+}
+
+.player-card__head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.player-card__head img {
+  width: 48px;
+  height: 48px;
+  border-radius: 6px;
+}
+
+.player-card__head strong {
+  color: var(--text-h);
+}
+
+.player-card__hint {
+  margin: 0;
+  max-width: 60ch;
+}
+
+.player-card__heroes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.player-card__heroes li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 12px;
+}
+
+.player-card__heroes img {
+  width: 64px;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 4px;
+}

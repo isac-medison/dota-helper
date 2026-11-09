@@ -1,0 +1,122 @@
+/* Wide screens: heroes | draft | recommendations. Narrower: draft, recommendations, heroes stacked. */
+.draft-page {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr) minmax(320px, 0.85fr);
+  grid-template-rows: minmax(0, 1fr);
+  grid-template-areas: "heroes draft recs";
+  flex: 1;
+  min-height: 0;
+  gap: 24px;
+  padding: 16px 0;
+  text-align: left;
+}
+
+/* Wide screens: the page fits the window and only the columns scroll (the draft one only if it overflows). */
+#root:has(.draft-page) {
+  height: 100svh;
+}
+
+.draft-page__heroes {
+  grid-area: heroes;
+}
+
+.draft-page__draft {
+  grid-area: draft;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.draft-page__recommendations {
+  grid-area: recs;
+}
+
+.draft-page__heroes,
+.draft-page__draft,
+.draft-page__recommendations {
+  min-height: 0;
+  overflow-y: auto;
+}
+
+/* Narrow screens: columns stacked, the page scrolls as a whole. */
+@media (max-width: 1200px) {
+  #root:has(.draft-page) {
+    height: auto;
+  }
+
+  .draft-page {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: none;
+    grid-template-areas: "draft" "recs" "heroes";
+  }
+
+  .draft-page__heroes,
+  .draft-page__draft,
+  .draft-page__recommendations {
+    overflow: visible;
+  }
+}
+
+.draft-settings {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+  font-size: 14px;
+}
+
+.bracket-select {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.bracket-select select,
+.draft-settings button {
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text-h);
+  font: inherit;
+}
+
+.draft-settings button {
+  cursor: pointer;
+}
+
+.cm-turn {
+  align-self: center;
+  color: #e5534b;
+}
+
+.cm-turn[data-ours="true"] {
+  color: #3fb950;
+}
+
+.draft-page__recommendations h2 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 12px;
+  margin: 0 0 12px;
+  font-size: 20px;
+}
+
+.draft-page__recommendations h2 small {
+  font-size: 13px;
+  font-weight: normal;
+  color: var(--text);
+}
+
+.hint {
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+
+/* Search stays on top while the hero list scrolls under it. */
+.draft-page__heroes .hero-search {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}

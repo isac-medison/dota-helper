@@ -1,0 +1,86 @@
+.party-member,
+.party-member__input {
+  min-width: 0;
+  height: 26px;
+  padding: 0 6px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--bg);
+  color: var(--text-h);
+  font: inherit;
+  font-size: 12px;
+}
+
+.party-member {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+}
+
+.party-member[data-empty="true"] {
+  border-style: dashed;
+  color: var(--text);
+}
+
+.party-member img {
+  width: 18px;
+  height: 18px;
+  border-radius: 3px;
+}
+
+.party-member span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.party-member__input[aria-invalid="true"] {
+  border-color: #e5534b;
+}
+
+.saved-profiles h2 {
+  margin-bottom: 8px;
+  font-size: 18px;
+}
+
+.saved-profiles__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.saved-profile {
+  display: flex;
+  max-width: 180px;
+  cursor: grab;
+}
+
+.party-slot {
+  display: flex;
+}
+
+.party-slot .party-member {
+  flex: 1;
+}
+
+.saved-profile .party-member,
+.party-slot .party-member {
+  min-width: 0;
+  border-right: none;
+  border-radius: 4px 0 0 4px;
+}
+
+.saved-profile__remove {
+  height: 26px;
+  padding: 0 6px;
+  border: 1px solid var(--border);
+  border-radius: 0 4px 4px 0;
+  background: var(--bg);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.saved-profiles__input {
+  width: 170px;
+}

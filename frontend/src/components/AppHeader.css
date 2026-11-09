@@ -1,0 +1,66 @@
+.app-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 24px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: 22px;
+  letter-spacing: -0.3px;
+}
+
+.freshness {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 24px;
+  margin: 0;
+  font-size: 13px;
+}
+
+.freshness > div {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.freshness dt {
+  color: var(--text-h);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.freshness dd {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+
+.freshness button {
+  padding: 2px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text-h);
+  font: inherit;
+  cursor: pointer;
+}
+
+.freshness button:hover:not(:disabled) {
+  border-color: var(--accent-border);
+}
+
+.freshness button:disabled {
+  cursor: progress;
+  opacity: 0.7;
+}
+
+.freshness__error {
+  color: #e5534b;
+}

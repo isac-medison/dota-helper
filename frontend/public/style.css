@@ -174,10 +174,6 @@ body {
     line-height: 1.55;
 }
 
-/* ----- Greet input + button ------------------------------------------------ */
-/* Input row and the card below it are sized down so they sit more compact
-   under the heading. */
-.greet { width: 62%; }
 
 /* Input font is pinned at 16px: iOS Safari/WKWebView zooms the page when an
    input under 16px gains focus, so the whole control is sized around that.
@@ -236,58 +232,3 @@ input[type="text"] {
 .btn svg { width: 17px; height: 17px; }
 .btn:hover { box-shadow: 0 8px 24px rgba(255, 45, 114, 0.5); }
 .btn:active { transform: scale(0.97); }
-
-
-
-/* The main title bar container */
-.titlebar {
-    height: 32px;
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: space-between; /* Pushes title to left, buttons to right */
-    background-color: #111111;
-    --wails-draggable: drag; /* Makes the bar draggable */
-    user-select: none;
-}
-
-.titlebar-title {
-    padding-left: 12px;
-    font-size: 13px;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-/* The container for the buttons */
-.titlebar-controls {
-    display: flex;
-    height: 100%;
-    /* CRITICAL: Overrides the drag behavior so you can actually click the buttons */
-    --wails-draggable: no-drag; 
-}
-
-/* Base style for all 3 buttons */
-.titlebar-button {
-    background: transparent;
-    border: none;
-    color: #cccccc;
-    width: 46px;
-    height: 100%;
-    cursor: default;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 14px;
-    transition: background-color 0.1s;
-}
-
-/* Hover effect for Minimize and Maximize */
-.titlebar-button:hover {
-    background-color: #333333;
-    color: white;
-}
-
-/* Special red hover effect for the Close button */
-.titlebar-close:hover {
-    background-color: #e81123;
-    color: white;
-}

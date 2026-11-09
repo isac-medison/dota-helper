@@ -1,0 +1,94 @@
+.screen-scan {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 14px;
+}
+
+.screen-scan__controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+}
+
+.screen-scan__side {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Two halves of one switch. */
+.screen-scan__side button + button {
+  margin-left: -6px;
+  border-radius: 0 6px 6px 0;
+}
+
+.screen-scan__side button:first-of-type {
+  border-radius: 6px 0 0 6px;
+}
+
+.screen-scan__side button[aria-pressed="true"],
+.screen-scan__auto[aria-pressed="true"] {
+  border-color: var(--accent-border);
+  background: var(--accent-bg, var(--bg));
+  color: var(--text-h);
+  font-weight: 600;
+}
+
+.screen-scan__side button[aria-pressed="false"] {
+  color: var(--text);
+}
+
+.screen-scan__controls button {
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text-h);
+  font: inherit;
+  cursor: pointer;
+}
+
+.screen-scan__controls .hint {
+  margin: 0;
+}
+
+/* Five portraits per side, the sides apart like in the game. */
+.screen-scan__slots {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr) 12px repeat(5, 1fr);
+  gap: 4px;
+}
+
+.screen-scan__slot:nth-child(6) {
+  grid-column: 7;
+}
+
+.screen-scan__slot {
+  margin: 0;
+  padding: 2px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  text-align: center;
+  font-size: 11px;
+}
+
+.screen-scan__slot img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 2px;
+}
+
+.screen-scan__slot[data-status="unknown"] {
+  border-color: #d29922;
+}
+
+.screen-scan__slot[data-status="unknown"] figcaption {
+  color: #d29922;
+}
+
+.screen-scan__slot--drop {
+  border-color: var(--accent-border);
+}

@@ -1,0 +1,153 @@
+.draft-board {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.draft-team h2 {
+  margin-bottom: 8px;
+  font-size: 18px;
+}
+
+.draft-team--allies {
+  --team: #4caf50;
+}
+
+.draft-team--enemies {
+  --team: #e5534b;
+}
+
+.draft-slots {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.draft-slot {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.draft-slot[draggable="true"] {
+  cursor: grab;
+}
+
+.draft-slot__pos {
+  font-size: 12px;
+  color: var(--text);
+}
+
+.draft-slot--mine .draft-slot__pos {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.draft-slot--dragging {
+  opacity: 0.4;
+}
+
+.draft-slot--drop .draft-slot__select {
+  border-style: solid;
+  background: var(--accent-bg);
+}
+
+.draft-slot__select {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  padding: 0;
+  overflow: hidden;
+  border: 2px dashed var(--team);
+  border-radius: 6px;
+  background: var(--code-bg);
+  cursor: pointer;
+}
+
+.draft-slot__select:has(img) {
+  border-style: solid;
+}
+
+.draft-slot__select[aria-pressed="true"] {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.draft-slot__select img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.draft-slot__empty {
+  font-size: 28px;
+  color: var(--team);
+}
+
+.draft-slot__clear {
+  position: absolute;
+  top: 26px;
+  right: 4px;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  line-height: 22px;
+  cursor: pointer;
+}
+
+.draft-bans {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.draft-bans__toggle {
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text-h);
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.draft-bans__toggle[aria-pressed="true"] {
+  border-color: var(--accent);
+  background: var(--accent-bg);
+}
+
+.draft-ban {
+  width: 64px;
+  aspect-ratio: 16 / 9;
+  padding: 0;
+  overflow: hidden;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.draft-ban img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(1);
+}
+
+.draft-ban:hover img {
+  filter: none;
+}
+
+
+.draft-bans--drop {
+  outline: 2px dashed var(--accent);
+  outline-offset: 4px;
+  border-radius: 6px;
+}

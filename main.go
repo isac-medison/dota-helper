@@ -1,38 +1,109 @@
 package main
 
 import (
+	"context"
 	"embed"
-
 	"log"
+	"net/http"
+	"os"
+	"time"
 
+	"dota-helper/services"
+
+	"github.com/joho/godotenv"
 	"github.com/wailsapp/wails/v3/pkg/application"
 )
 
-//go:embed all:frontend/dist
 var assets embed.FS
 
-func init() {
-	// Register a custom event whose associated data type is string.
-	// This is not required, but the binding generator will pick up registered events
-	// and provide a strongly typed JS/TS API for them.
-	application.RegisterEvent[string]("time")
+type stratzTransport struct {
+	Token string
+	Base  http.RoundTripper
 }
 
-// main function serves as the application's entry point. It initializes the application, creates a window,
-// and starts a goroutine that emits a time-based event every second. It subsequently runs the application and
-// logs any error that might occur.
+func (t *stratzTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	// STRATZ requires both the Bearer prefix and a User-Agent
+	req.Header.Set("Authorization", "Bearer "+t.Token)
+	req.Header.Set("User-Agent", "STRATZ_API")
+
+	// Ensure Base is set, fallback to default if not
+	base := t.Base
+	if base == nil {
+		base = http.DefaultTransport
+	}
+	return base.RoundTrip(req)
+}
+
 func main() {
 
-	// Create a new Wails application by providing the necessary options.
-	// Variables 'Name' and 'Description' are for application metadata.
-	// 'Assets' configures the asset server with the 'FS' variable pointing to the frontend files.
-	// 'Bind' is a list of Go struct instances. The frontend has access to the methods of these instances.
-	// 'Mac' options tailor the application when running an macOS.
+	var db = InitDB()
+	sqlDB, err := db.DB()
+	if err == nil {
+		defer sqlDB.Close()
+	}
+
+	if err := godotenv.Load(); err != nil {
+		log.Println("No .env file found or error reading it (ignoring for production)")
+	}
+
+	stratzToken := os.Getenv("STRATZ_TOKEN")
+
+	openDotaHttp := &http.Client{
+		Timeout: 10 * time.Second,
+	}
+	stratzHttp := &http.Client{
+		Timeout: 1 * time.Minute,
+		Transport: &stratzTransport{
+			Token: stratzToken, // Uses the token from godotenv
+		},
+	}
+	iconHttp := &http.Client{
+		Timeout: 10 * time.Second,
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			// http.ErrUseLastResponse stops redirects exactly like AllowAutoRedirect = false
+			return http.ErrUseLastResponse
+		},
+	}
+	openDotaClient := &services.OpenDotaClient{Http: openDotaHttp}
+	stratzClient := &services.StratzClient{Http: stratzHttp, Token: stratzToken}
+
+	heroImporter := &services.HeroImporter{
+		DB:       db,
+		OpenDota: openDotaClient,
+	}
+	metaCache := services.NewMetaCache(db)
+
+	metaImporter := &services.MetaImporter{
+		DB:        db,
+		Stratz:    stratzClient,
+		Heroes:    heroImporter,
+		MetaCache: metaCache,
+	}
+
+	refresher := services.NewMetaRefresher(db, stratzToken, metaImporter)
+
+	// Core application services (Controllers)
+	playersService := &services.Players{DB: db}
+
+	log.Println("Syncing heroes from OpenDota...")
+	if err := heroImporter.SyncAsync(context.Background()); err != nil {
+		log.Printf("Warning: Initial hero sync failed: %v", err)
+	}
+
+	// 5. Setup Background Context & Worker
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	go refresher.Run(ctx)
+
 	app := application.New(application.Options{
 		Name:        "dota-helper",
 		Description: "A Dota 2 helper application.",
 		Services: []application.Service{
-			application.NewService(&OpenDotaService{}),
+			application.NewService(&services.Heroes{DB: db, IconClient: iconHttp}),
+			application.NewService(&services.Meta{DB: db, Refresher: refresher}),
+			application.NewService(&services.Players{DB: db}),
+			application.NewService(&services.Recommendations{Players: playersService, MetaCache: metaCache}),
 		},
 		Assets: application.AssetOptions{
 			Handler: application.AssetFileServerFS(assets),
@@ -42,34 +113,22 @@ func main() {
 		},
 	})
 
-	// Create a new window with the necessary options.
-	// 'Title' is the title of the window.
-	// 'Mac' options tailor the window when running on macOS.
-	// 'BackgroundColour' is the background colour of the window.
-	// 'URL' is the URL that will be loaded into the webview.
 	app.Window.NewWithOptions(application.WebviewWindowOptions{
 		Title: "Dota Helper",
-		Frameless: true,
 
-		// Window sized to the golden ratio (1000 / 618 ≈ 1.618).
-		Width:  1000,
-		Height: 618,
+		// // Window sized to the golden ratio (1000 / 618 ≈ 1.618).
+		// Width:  1000,
+		// Height: 618,
 		Mac: application.MacWindow{
 			InvisibleTitleBarHeight: 50,
 			Backdrop:                application.MacBackdropTranslucent,
 			TitleBar:                application.MacTitleBarHiddenInset,
 		},
-		// This is the correct v3 method to prevent the white flash
 		BackgroundColour: application.NewRGBA(0, 0, 0, 255),
 		URL:              "/",
 	})
 
-
-	// Run the application. This blocks until the application has been exited.
-	err := app.Run()
-
-	// If an error occurred while running the application, log it and exit.
-	if err != nil {
+	if err := app.Run(); err != nil {
 		log.Fatal(err)
 	}
 }

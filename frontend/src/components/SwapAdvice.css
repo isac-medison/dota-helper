@@ -1,0 +1,31 @@
+.swap-advice {
+  padding: 8px 12px;
+  border: 1px solid #d29922;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.swap-advice h2 {
+  margin: 0 0 4px;
+  font-size: 16px;
+}
+
+.swap-advice small {
+  color: #3fb950;
+  font-weight: normal;
+}
+
+.swap-advice ul {
+  margin: 0 0 8px;
+  padding-left: 18px;
+}
+
+.swap-advice button {
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text-h);
+  font: inherit;
+  cursor: pointer;
+}
