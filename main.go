@@ -2,13 +2,13 @@ package main
 
 import (
 	"context"
+	"dota-helper/services"
+
 	"embed"
 	"log"
 	"net/http"
 	"os"
 	"time"
-
-	"dota-helper/services"
 
 	"github.com/joho/godotenv"
 	"github.com/wailsapp/wails/v3/pkg/application"
@@ -48,17 +48,24 @@ func main() {
 
 	stratzToken := os.Getenv("STRATZ_TOKEN")
 
-	openDotaHttp := &http.Client{
-		Timeout: 10 * time.Second,
+	httpTimeout, err := time.ParseDuration(os.Getenv("HTTP_TIMEOUT"))
+	if err != nil {
+		httpTimeout = time.Minute
 	}
+
+	openDotaHttp := &http.Client{
+		Timeout: httpTimeout,
+	}
+
 	stratzHttp := &http.Client{
-		Timeout: 1 * time.Minute,
+		Timeout: httpTimeout,
 		Transport: &stratzTransport{
 			Token: stratzToken, // Uses the token from godotenv
 		},
 	}
+
 	iconHttp := &http.Client{
-		Timeout: 10 * time.Second,
+		Timeout: httpTimeout,
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
 			// http.ErrUseLastResponse stops redirects exactly like AllowAutoRedirect = false
 			return http.ErrUseLastResponse
