@@ -4,7 +4,21 @@
 /**
  * Assuming Bracket and Position are also enums/ints in your C# code
  */
-export type Bracket = number;
+export enum Bracket {
+    /**
+     * The Go zero value for the underlying type of the enum.
+     */
+    $zero = 0,
+
+    /**
+     * Brackets are STRATZ's four basic rank groups; the frontend's bracket select uses the same values.
+     */
+    BracketUnknown = 0,
+    BracketHeraldGuardian = 1,
+    BracketCrusaderArchon = 2,
+    BracketLegendAncient = 3,
+    BracketDivineImmortal = 4,
+};
 
 export interface Hero {
     "id": number;
@@ -106,26 +120,25 @@ export interface RecommendationRequest {
 
 export interface RecommendationsDto {
     "bracket": Bracket;
-    "hasComfort": boolean;
+    "comfortUsed": boolean;
     "items": Recommendation[] | null;
     "enemyPositions": (Position | null)[] | null;
     "swap": SwapDto | null;
 
     /**
-     * Used by OpenPositions
+     * Only with OpenPositions: the position each item is scored on, and the guessed position of each ally slot.
      */
-    "positions": Position[] | null;
-
-    /**
-     * Used by OpenPositions
-     */
-    "allyPositions": (Position | null)[] | null;
+    "positions"?: Position[] | null;
+    "allyPositions"?: (Position | null)[] | null;
 }
 
+/**
+ * SwapDto is the suggested arrangement by ally slot: the hero and the player (null = empty) each slot should hold.
+ */
 export interface SwapDto {
     "gain": number;
-    "heroes": (number | null)[] | null;
-    "players": (string | null)[] | null;
+    "allies": (number | null)[] | null;
+    "steamIds": (string | null)[] | null;
 }
 
 export interface Threat {

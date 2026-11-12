@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"sort"
 	"strconv"
 
 	"dota-helper/models"
@@ -91,15 +92,7 @@ func (s *Players) Get(steamId string, refresh bool) (*models.PlayerDto, error) {
 		player.AvatarUrl = &avatarStr
 	}
 
-	// SeasonRank is already *int, so check against nil and assign directly.
-	if fresh.SteamAccount.SeasonRank != nil {
-		player.RankTier = fresh.SteamAccount.SeasonRank
-	}
-
-	// Handle RankTier if it's stored as an int; if 0, STRATZ didn't return one
-	if fresh.SteamAccount.SeasonRank != nil {
-		player.RankTier = fresh.SteamAccount.SeasonRank
-	}
+	player.RankTier = fresh.SteamAccount.SeasonRank
 
 	// Map P1-P5 arrays into PlayerHeroes
 	stratzPositions := [][]StratzHeroPerformance{fresh.P1, fresh.P2, fresh.P3, fresh.P4, fresh.P5}
@@ -175,6 +168,10 @@ func toPlayerDto(p *models.Player) *models.PlayerDto {
 			LastPlayedUtc: h.LastPlayedUtc, // Ensure this field exists on PlayerHeroDto
 		}
 	}
+	// Most played first: the profile card shows the top of this list per position.
+	sort.SliceStable(dto.Heroes, func(i, j int) bool {
+		return dto.Heroes[i].Games > dto.Heroes[j].Games
+	})
 	return dto
 }
 
@@ -198,7 +195,7 @@ func parseAccountId(steamIdStr string) (int64, error) {
 // BracketFromRankTier replaces Brackets.FromRankTier
 func BracketFromRankTier(tier *int) models.Bracket {
 	if tier == nil || *tier < 10 {
-		return 0 // Unknown or uncalibrated
+		return models.BracketUnknown // Unknown or uncalibrated
 	}
 
 	// Dota rank tiers: 11-15 (Herald), 21-25 (Guardian), ..., 71-75 (Divine), 80+ (Immortal)
@@ -210,5 +207,6 @@ func BracketFromRankTier(tier *int) models.Bracket {
 		medal = 8
 	}
 
-	return models.Bracket(medal)
+	// Medals pair up into STRATZ's groups: Herald+Guardian = 1 ... Divine+Immortal = 4.
+	return models.Bracket((medal + 1) / 2)
 }

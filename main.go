@@ -14,6 +14,7 @@ import (
 	"github.com/wailsapp/wails/v3/pkg/application"
 )
 
+//go:embed all:frontend/dist
 var assets embed.FS
 
 type stratzTransport struct {
@@ -88,7 +89,7 @@ func main() {
 	}
 
 	// Core application services (Controllers)
-	playersService := &services.Players{DB: db}
+	playersService := &services.Players{DB: db, Stratz: stratzClient}
 
 	log.Println("Syncing heroes from OpenDota...")
 	if err := heroImporter.SyncAsync(context.Background()); err != nil {
@@ -100,7 +101,7 @@ func main() {
 		Description: "A Dota 2 helper application.",
 		Services: []application.Service{
 			application.NewService(&services.Heroes{DB: db, IconClient: iconHttp}),
-			application.NewService(&services.Players{DB: db, Stratz: stratzClient}),
+			application.NewService(playersService),
 			application.NewService(&services.Recommendations{Players: playersService, MetaCache: metaCache}),
 			application.NewService(&services.Meta{DB: db, MetaImporter: metaImporter, Token: stratzToken}),
 		},
