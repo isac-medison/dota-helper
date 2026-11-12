@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useMetaStatus, useRefreshMeta } from "../api/meta";
 import { useRefreshPlayer, type Player } from "../api/players";
+import appIcon from "../../appicon.png";
 import "./AppHeader.css";
 
 const relative = new Intl.RelativeTimeFormat("uk", { numeric: "auto" });
@@ -39,7 +40,10 @@ export function AppHeader({ player, steamId }: Props) {
 
   return (
     <header className="app-header">
-      <h1>DotaPickAnalyzer</h1>
+      <h1>
+        <img src={appIcon} alt="" />
+        <span>DotaPickAnalyzer</span>
+      </h1>
 
       <dl className="freshness">
         <div>

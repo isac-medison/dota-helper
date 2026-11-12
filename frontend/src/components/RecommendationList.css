@@ -1,26 +1,32 @@
 .recommendations {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
   margin: 0;
   padding: 0;
   list-style: none;
+  counter-reset: rank;
+}
+
+.recommendations li {
+  counter-increment: rank;
 }
 
 .recommendations button {
+  position: relative;
   display: grid;
-  grid-template-columns: 80px 1fr auto;
+  grid-template-columns: 88px 1fr auto;
   grid-template-areas:
     "icon name score"
     "icon parts parts"
     "icon why why"
     "icon risk risk";
   align-items: center;
-  gap: 2px 12px;
+  gap: 3px 12px;
   width: 100%;
-  padding: 6px;
+  padding: 8px 10px 8px 8px;
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: var(--radius);
   background: var(--bg);
   color: var(--text);
   font: inherit;
@@ -31,33 +37,77 @@
 
 .recommendations button:hover {
   border-color: var(--accent-border);
+  background: color-mix(in srgb, var(--accent) 6%, var(--bg));
+  transform: translateY(-1px);
+  box-shadow: var(--shadow);
 }
 
-.recommendations img {
+/* The best pick stands out. */
+.recommendations li:first-child button {
+  border-color: var(--accent-border);
+  background: linear-gradient(100deg, var(--accent-bg), transparent 55%), var(--bg);
+}
+
+.recommendations button > img {
   grid-area: icon;
-  width: 80px;
+  align-self: start;
+  width: 88px;
   aspect-ratio: 16 / 9;
   object-fit: cover;
-  border-radius: 4px;
+  border-radius: 6px;
+  box-shadow: 0 0 0 1px var(--border-strong);
+}
+
+/* Rank on the corner of the portrait. */
+.recommendations button::before {
+  content: counter(rank);
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  z-index: 1;
+  min-width: 18px;
+  padding: 0 4px;
+  box-sizing: border-box;
+  border-radius: 6px 0 6px 0;
+  background: rgba(8, 10, 14, 0.85);
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
 }
 
 .recommendations__name {
   grid-area: name;
   color: var(--text-h);
+  font-size: 15px;
   font-weight: 600;
 }
 
 .recommendations__score {
   grid-area: score;
-  color: var(--text-h);
+  padding: 1px 9px;
+  border-radius: 999px;
+  background: var(--accent-bg);
+  color: var(--accent);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 .recommendations__parts {
   grid-area: parts;
   display: flex;
   flex-wrap: wrap;
-  gap: 4px 12px;
-  font-size: 12px;
+  gap: 4px;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.recommendations__parts > span {
+  padding: 0 6px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.04);
 }
 
 .recommendations__why {
@@ -66,17 +116,24 @@
   flex-wrap: wrap;
   gap: 2px 10px;
   font-size: 12px;
-  font-style: italic;
 }
 
 .recommendations__parts [data-sign="1"],
 .recommendations__why [data-sign="1"] {
-  color: #3fb950;
+  color: var(--good);
+}
+
+.recommendations__parts [data-sign="1"] {
+  background: color-mix(in srgb, var(--good) 12%, transparent);
 }
 
 .recommendations__parts [data-sign="-1"],
 .recommendations__why [data-sign="-1"] {
-  color: #e5534b;
+  color: var(--bad);
+}
+
+.recommendations__parts [data-sign="-1"] {
+  background: color-mix(in srgb, var(--bad) 12%, transparent);
 }
 
 .recommendations__risk {
@@ -85,7 +142,7 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 2px 10px;
-  color: #d29922;
+  color: var(--warn);
   font-size: 12px;
 }
 
@@ -95,6 +152,14 @@
   gap: 4px;
 }
 
-.recommendations .recommendations__risk img {
+.recommendations__risk img {
   width: 36px;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 3px;
+}
+
+/* Parts that add nothing stay in the background. */
+.recommendations__parts [data-sign="0"] {
+  opacity: 0.5;
 }

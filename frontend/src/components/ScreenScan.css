@@ -21,11 +21,11 @@
 /* Two halves of one switch. */
 .screen-scan__side button + button {
   margin-left: -6px;
-  border-radius: 0 6px 6px 0;
+  border-radius: 0 8px 8px 0;
 }
 
 .screen-scan__side button:first-of-type {
-  border-radius: 6px 0 0 6px;
+  border-radius: 8px 0 0 8px;
 }
 
 .screen-scan__side button[aria-pressed="true"],
@@ -43,7 +43,7 @@
 .screen-scan__controls button {
   padding: 6px 10px;
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: 8px;
   background: var(--bg);
   color: var(--text-h);
   font: inherit;
@@ -82,13 +82,23 @@
 }
 
 .screen-scan__slot[data-status="unknown"] {
-  border-color: #d29922;
+  border-color: var(--warn);
 }
 
 .screen-scan__slot[data-status="unknown"] figcaption {
-  color: #d29922;
+  color: var(--warn);
 }
 
 .screen-scan__slot--drop {
   border-color: var(--accent-border);
+}
+
+/* --- Theme --- */
+.screen-scan__controls button:hover {
+  background: var(--accent-bg);
+}
+
+.screen-scan__side button[aria-pressed="true"],
+.screen-scan__auto[aria-pressed="true"] {
+  color: var(--accent);
 }

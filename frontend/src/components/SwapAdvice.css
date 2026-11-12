@@ -1,7 +1,9 @@
 .swap-advice {
-  padding: 8px 12px;
-  border: 1px solid #d29922;
-  border-radius: 6px;
+  padding: 10px 12px;
+  border: 1px solid color-mix(in srgb, var(--warn) 60%, transparent);
+  border-left-width: 3px;
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--warn) 8%, var(--surface));
   font-size: 14px;
 }
 
@@ -11,7 +13,7 @@
 }
 
 .swap-advice small {
-  color: #3fb950;
+  color: var(--good);
   font-weight: normal;
 }
 
@@ -20,12 +22,20 @@
   padding-left: 18px;
 }
 
+.swap-advice strong {
+  color: var(--text-h);
+}
+
 .swap-advice button {
-  padding: 4px 10px;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  background: var(--bg);
+  padding: 5px 12px;
+  border: 1px solid var(--warn);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--warn) 18%, transparent);
   color: var(--text-h);
   font: inherit;
   cursor: pointer;
+}
+
+.swap-advice button:hover {
+  background: color-mix(in srgb, var(--warn) 32%, transparent);
 }

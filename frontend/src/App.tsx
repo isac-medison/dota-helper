@@ -159,21 +159,18 @@ export default function App() {
         </div>
 
         <div className="draft-page__draft">
-          <label className="bracket-select">
-          Бракет
-          <select
-            value={bracket ?? ""}
-            onChange={(e) => setBracket(Number(e.target.value))}
-          >
-            {BRACKETS.map((b) => (
-              <option key={b.value} value={b.value}>
-                {b.label}
-              </option>
-            ))}
-          </select>
-        </label>
           <div className="draft-settings">
-           <label className="bracket-select">
+            <label className="bracket-select">
+              Бракет
+              <select value={bracket ?? ""} onChange={(e) => setBracket(Number(e.target.value))}>
+                {BRACKETS.map((b) => (
+                  <option key={b.value} value={b.value}>
+                    {b.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="bracket-select">
               Позиції
               <select value={openPositions ? "open" : ""} onChange={(e) => setOpenPositions(e.target.value === "open")}>
                 <option value="">Розписані (слот = позиція)</option>

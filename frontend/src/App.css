@@ -75,7 +75,7 @@
 .draft-settings button {
   padding: 6px 10px;
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: 8px;
   background: var(--bg);
   color: var(--text-h);
   font: inherit;
@@ -87,11 +87,11 @@
 
 .cm-turn {
   align-self: center;
-  color: #e5534b;
+  color: var(--bad);
 }
 
 .cm-turn[data-ours="true"] {
-  color: #3fb950;
+  color: var(--good);
 }
 
 .draft-page__recommendations h2 {
@@ -119,4 +119,59 @@
   position: sticky;
   top: 0;
   z-index: 1;
+}
+
+/* --- Theme: the three columns are panels on the page --- */
+.draft-page__heroes,
+.draft-page__draft,
+.draft-page__recommendations {
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.draft-page__heroes {
+  padding-top: 0;
+}
+
+.draft-page__heroes .hero-search {
+  margin-top: 14px;
+  /* Hides the heroes scrolling under the search, up to the edge of the panel. */
+  top: 14px;
+  box-shadow: 0 -14px 0 var(--surface), 0 6px 10px -4px var(--surface);
+}
+
+.bracket-select {
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.bracket-select select {
+  font-size: 14px;
+  letter-spacing: normal;
+  text-transform: none;
+  cursor: pointer;
+}
+
+.draft-settings button:hover {
+  background: var(--accent-bg);
+}
+
+.cm-turn {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, currentColor 12%, transparent);
+  font-size: 13px;
+}
+
+.draft-page__recommendations h2 {
+  font-size: 18px;
+}
+
+.hint {
+  line-height: 1.4;
+  opacity: 0.85;
 }

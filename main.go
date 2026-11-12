@@ -17,6 +17,9 @@ import (
 //go:embed all:frontend/dist
 var assets embed.FS
 
+//go:embed build/appicon.png
+var appIcon []byte
+
 type stratzTransport struct {
 	Token string
 	Base  http.RoundTripper
@@ -99,6 +102,7 @@ func main() {
 	app := application.New(application.Options{
 		Name:        "dota-helper",
 		Description: "A Dota 2 helper application.",
+		Icon:        appIcon,
 		Services: []application.Service{
 			application.NewService(&services.Heroes{DB: db, IconClient: iconHttp}),
 			application.NewService(playersService),
@@ -116,15 +120,20 @@ func main() {
 	app.Window.NewWithOptions(application.WebviewWindowOptions{
 		Title: "Dota Helper",
 
-		// // Window sized to the golden ratio (1000 / 618 ≈ 1.618).
-		// Width:  1000,
-		// Height: 618,
+		// Opens as a normal centred window, wide enough for the three columns side by side
+		// (they stack below 1200px), and never smaller than the stacked layout needs.
+		Width:           1400,
+		Height:          860,
+		MinWidth:        960,
+		MinHeight:       620,
+		InitialPosition: application.WindowCentered,
+		StartState:      application.WindowStateNormal,
 		Mac: application.MacWindow{
 			InvisibleTitleBarHeight: 50,
 			Backdrop:                application.MacBackdropTranslucent,
 			TitleBar:                application.MacTitleBarHiddenInset,
 		},
-		BackgroundColour: application.NewRGBA(62, 63, 69, 255),
+		BackgroundColour: application.NewRGBA(11, 13, 18, 255),
 		URL:              "/",
 	})
 
