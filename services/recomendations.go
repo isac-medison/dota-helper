@@ -4,12 +4,14 @@ import (
 	"errors"
 	"log"
 	"math"
+	"time"
 
 	"dota-helper/models"
 	"dota-helper/utils"
 )
 
 const Top = 10
+const TeamSize = 5
 
 type Recommendations struct {
 	Players   *Players // Changed to lowercase
@@ -36,17 +38,7 @@ func (s *Recommendations) Recommend(req models.RecommendationRequest) (*models.R
 	}
 
 	// Guess enemy positions
-	guessed := Assign(enemies, meta, nil).Positions
-	enemyPositions := make([]*models.Position, len(req.Enemies))
-	for i, h := range req.Enemies {
-		if h == nil {
-			enemyPositions[i] = nil
-		} else {
-			pos := guessed[0]
-			guessed = guessed[1:]
-			enemyPositions[i] = &pos
-		}
-	}
+	enemyPositions := slotPositions(req.Enemies, meta)
 
 	if req.OpenPositions {
 		return s.openPositions(req, party, bracket, meta, enemies, enemyPositions), nil
@@ -63,7 +55,7 @@ func (s *Recommendations) Recommend(req models.RecommendationRequest) (*models.R
 
 	var comfort map[HeroPosKey]HeroStat
 	if player != nil && len(player.Heroes) > 0 {
-		comfort = s.comfort(player)
+		comfort = comfortOf(player)
 	}
 
 	// Determine allies and pinned positions
@@ -107,31 +99,33 @@ func (s *Recommendations) Recommend(req models.RecommendationRequest) (*models.R
 	partyComfort := make([]map[HeroPosKey]HeroStat, len(req.Allies))
 	for i := range req.Allies {
 		if i < len(steamIds) && steamIds[i] != "" && i < len(party) && party[i] != nil {
-			partyComfort[i] = s.comfort(party[i])
+			partyComfort[i] = comfortOf(party[i])
 		}
 	}
 
 	var swapDto *models.SwapDto
 	if swap := BestSwap(req.Allies, partyComfort, enemies, meta, nil); swap != nil {
+		// Slot i gets the hero and the player that sit in slots swap.Heroes[i] and swap.Players[i] now.
 		swapDto = &models.SwapDto{
-			Gain:    swap.Gain,
-			Heroes:  make([]*int, len(swap.Heroes)),
-			Players: make([]*string, len(swap.Players)),
+			Gain:     swap.Gain,
+			Allies:   make([]*int, len(swap.Heroes)),
+			SteamIds: make([]*string, len(swap.Players)),
 		}
 		for i, hIdx := range swap.Heroes {
 			if hIdx < len(req.Allies) {
-				swapDto.Heroes[i] = req.Allies[hIdx]
+				swapDto.Allies[i] = req.Allies[hIdx]
 			}
 		}
 		for i, pIdx := range swap.Players {
-			if pIdx < len(steamIds) {
-				swapDto.Players[i] = &steamIds[pIdx]
+			if pIdx < len(steamIds) && steamIds[pIdx] != "" {
+				id := steamIds[pIdx]
+				swapDto.SteamIds[i] = &id
 			}
 		}
 	}
 	dto := &models.RecommendationsDto{
 		Bracket:        bracket,
-		HasComfort:     comfort != nil,
+		ComfortUsed:    len(comfort) > 0,
 		Items:          items,
 		EnemyPositions: enemyPositions,
 		Swap:           swapDto,
@@ -175,17 +169,92 @@ func (s *Recommendations) Threats(req models.RecommendationRequest) ([]models.Th
 // --- Internal Helpers ---
 
 func (s *Recommendations) openPositions(req models.RecommendationRequest, party []*models.PlayerDto, bracket models.Bracket, meta *MetaSnapshot, enemies []int, enemyPositions []*models.Position) *models.RecommendationsDto {
-	// ... (Similar translation for OpenPositions using standard Go slices)
-	return &models.RecommendationsDto{} // Placeholder
+	// The party hasn't split positions yet: every hero is scored on each position the allies' heroes
+	// leave free, with the comfort of whoever in the party plays it best.
+	var allies []int
+	for _, a := range req.Allies {
+		if a != nil {
+			allies = append(allies, *a)
+		}
+	}
+
+	var comforts []map[HeroPosKey]HeroStat
+	for _, p := range party {
+		if p != nil && len(p.Heroes) > 0 {
+			comforts = append(comforts, comfortOf(p))
+		}
+	}
+	var comfort map[HeroPosKey]HeroStat
+	if len(comforts) > 0 {
+		comfort = BestOfParty(comforts, nil)
+	}
+
+	picks := OnFreePositions(DraftInput{Allies: allies, Enemies: enemies, Bans: req.Bans}, meta, comfort, nil)
+	if len(picks) > Top {
+		picks = picks[:Top]
+	}
+
+	items := make([]models.Recommendation, len(picks))
+	positions := make([]models.Position, len(picks))
+	for i, p := range picks {
+		items[i] = p.Recommendation
+		positions[i] = p.Position
+	}
+
+	dto := &models.RecommendationsDto{
+		Bracket:        bracket,
+		ComfortUsed:    len(comfort) > 0,
+		Items:          items,
+		EnemyPositions: enemyPositions,
+		Positions:      positions,
+		AllyPositions:  slotPositions(req.Allies, meta),
+	}
+	utils.SanitizeDefaults(dto)
+	return dto
 }
 
-func (s *Recommendations) comfort(player *models.PlayerDto) map[HeroPosKey]HeroStat {
-	result := make(map[HeroPosKey]HeroStat)
-	// ... (Translation of Comfort dictionary logic)
+// slotPositions guesses the position of the hero in each slot; empty slots stay nil.
+func slotPositions(slots []*int, meta *MetaSnapshot) []*models.Position {
+	var heroes []int
+	for _, h := range slots {
+		if h != nil {
+			heroes = append(heroes, *h)
+		}
+	}
+	guessed := Assign(heroes, meta, nil).Positions
+
+	positions := make([]*models.Position, len(slots))
+	next := 0
+	for i, h := range slots {
+		if h != nil && next < len(guessed) {
+			pos := guessed[next]
+			next++
+			positions[i] = &pos
+		}
+	}
+	return positions
+}
+
+// comfortOf is the player's own record by hero and position, with old games fading out.
+func comfortOf(player *models.PlayerDto) map[HeroPosKey]HeroStat {
+	now := time.Now().Unix()
+	result := make(map[HeroPosKey]HeroStat, len(player.Heroes))
+	for _, h := range player.Heroes {
+		var lastPlayed *int64
+		if h.LastPlayedUtc != nil {
+			t := h.LastPlayedUtc.Unix()
+			lastPlayed = &t
+		}
+		result[HeroPosKey{HeroId: h.HeroId, Pos: h.Position}] = RecentComfort(h.Games, h.Wins, lastPlayed, now, nil)
+	}
 	return result
 }
 
 func (s *Recommendations) load(req models.RecommendationRequest) ([]*models.PlayerDto, models.Bracket, *MetaSnapshot, error) {
+	if len(req.Allies) > TeamSize || len(req.Enemies) > TeamSize {
+		return nil, 0, nil, errors.New("a team has at most five heroes")
+	}
+
 	// Validate duplicates
 	seen := make(map[int]bool)
 	var heroCount int
@@ -234,7 +303,7 @@ func (s *Recommendations) load(req models.RecommendationRequest) ([]*models.Play
 
 	// Calculate Bracket
 	var bracket models.Bracket
-	if req.Bracket != nil {
+	if req.Bracket != nil && *req.Bracket != models.BracketUnknown {
 		bracket = *req.Bracket
 	} else {
 		var avgRank *int
@@ -252,18 +321,17 @@ func (s *Recommendations) load(req models.RecommendationRequest) ([]*models.Play
 
 	meta, ok := metaCacheData[bracket]
 
-	// FIX: If the exact requested bracket isn't in the database,
-	// fallback to the first available bracket we have instead of crashing.
+	// No rank to go by, or that bracket isn't imported: take the highest bracket there is data for.
 	if !ok {
-		for fallbackBracket, fallbackMeta := range metaCacheData {
-			log.Printf("Warning: Bracket %v not found, falling back to %v", bracket, fallbackBracket)
-			meta = fallbackMeta
-			bracket = fallbackBracket // Update to the bracket we are actually using
-			ok = true
-			break
+		for i := len(models.AllBrackets) - 1; i >= 0 && !ok; i-- {
+			if fallback, exists := metaCacheData[models.AllBrackets[i]]; exists {
+				if bracket != models.BracketUnknown {
+					log.Printf("Warning: Bracket %v not found, falling back to %v", bracket, models.AllBrackets[i])
+				}
+				meta, bracket, ok = fallback, models.AllBrackets[i], true
+			}
 		}
 
-		// If it's STILL not ok, the map is truly empty
 		if !ok {
 			return nil, 0, nil, errors.New("STRATZ meta isn't imported yet")
 		}

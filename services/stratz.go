@@ -226,19 +226,15 @@ func weekArg(week *int64) string {
 }
 
 func bracketName(bracket models.Bracket) string {
-	// Assuming Bracket aligns with standard enum ints.
-	// Adapt if you have specific int mappings for these values.
 	switch bracket {
-	case 1, 2: // HeraldGuardian (approx)
+	case models.BracketHeraldGuardian:
 		return "HERALD_GUARDIAN"
-	case 3, 4:
+	case models.BracketCrusaderArchon:
 		return "CRUSADER_ARCHON"
-	case 5, 6:
+	case models.BracketLegendAncient:
 		return "LEGEND_ANCIENT"
-	case 7, 8:
-		return "DIVINE_IMMORTAL"
 	default:
-		return "DIVINE_IMMORTAL" // Default fallback
+		return "DIVINE_IMMORTAL"
 	}
 }
 

@@ -122,18 +122,20 @@ type RecommendationRequest struct {
 
 type RecommendationsDto struct {
 	Bracket        Bracket          `json:"bracket"`
-	HasComfort     bool             `json:"hasComfort"`
+	ComfortUsed    bool             `json:"comfortUsed"`
 	Items          []Recommendation `json:"items"`
 	EnemyPositions []*Position      `json:"enemyPositions"`
 	Swap           *SwapDto         `json:"swap"`
-	Positions      []Position       `json:"positions"`     // Used by OpenPositions
-	AllyPositions  []*Position      `json:"allyPositions"` // Used by OpenPositions
+	// Only with OpenPositions: the position each item is scored on, and the guessed position of each ally slot.
+	Positions     []Position  `json:"positions,omitempty"`
+	AllyPositions []*Position `json:"allyPositions,omitempty"`
 }
 
+// SwapDto is the suggested arrangement by ally slot: the hero and the player (null = empty) each slot should hold.
 type SwapDto struct {
-	Gain    float64   `json:"gain"`
-	Heroes  []*int    `json:"heroes"`
-	Players []*string `json:"players"`
+	Gain     float64   `json:"gain"`
+	Allies   []*int    `json:"allies"`
+	SteamIds []*string `json:"steamIds"`
 }
 
 type Recommendation struct {
@@ -206,7 +208,16 @@ type Swap struct {
 	Players []int   `json:"players"`
 }
 
-var AllBrackets = []Bracket{1, 2, 3, 4, 5, 6, 7, 8} // Herald to Immortal
+// Brackets are STRATZ's four basic rank groups; the frontend's bracket select uses the same values.
+const (
+	BracketUnknown        Bracket = 0
+	BracketHeraldGuardian Bracket = 1
+	BracketCrusaderArchon Bracket = 2
+	BracketLegendAncient  Bracket = 3
+	BracketDivineImmortal Bracket = 4
+)
+
+var AllBrackets = []Bracket{BracketHeraldGuardian, BracketCrusaderArchon, BracketLegendAncient, BracketDivineImmortal}
 
 // --- STRATZ DTOs ---
 

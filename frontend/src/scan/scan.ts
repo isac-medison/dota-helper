@@ -1,3 +1,5 @@
+import { GetIcon } from "../../bindings/dota-helper/services/heroes";
+
 // Finds the ten hero portraits in the top bar of a Dota screenshot and tells which hero each one is,
 // by comparing a coarse 16×8 colour grid of the portrait with every hero's icon (and portraits taught by hand,
 // for arcanas and personas, whose portraits differ from the icons).
@@ -90,7 +92,10 @@ function load(src: string) {
 }
 
 async function iconTemplate(heroId: number): Promise<Template> {
-  const img = await load(`/api/heroes/${heroId}/icon`);
+  // Through Go rather than straight from the CDN: a cross-origin image would taint the canvas.
+  const png = await GetIcon(heroId);
+  if (!png) throw new Error(`Немає іконки героя ${heroId}`);
+  const img = await load(`data:image/png;base64,${png}`);
   const { x0, x1, y0, y1 } = INNER;
   const w = img.naturalWidth;
   const h = img.naturalHeight;

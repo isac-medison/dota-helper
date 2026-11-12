@@ -4,8 +4,8 @@ import (
 	"reflect"
 )
 
-// SanitizeDefaults walks through any struct and initializes ALL nil slices, maps,
-// and pointers to their default zero-values ([], {}, 0, "", false).
+// SanitizeDefaults walks through any struct and initializes nil slices and maps
+// to empty ones ([] and {} in JSON instead of null). Nil pointers are left alone.
 func SanitizeDefaults(v interface{}) {
 	if v == nil {
 		return
@@ -42,13 +42,10 @@ func sanitizeReflect(val reflect.Value) {
 		}
 
 	case reflect.Ptr:
-		if val.IsNil() {
-			// Instantiates ANY nil pointer to its zero value!
-			// *int -> 0, *string -> "", *Struct -> {}
-			val.Set(reflect.New(val.Type().Elem()))
+		// A nil pointer means "no value" (null in JSON) and stays that way.
+		if !val.IsNil() {
+			sanitizeReflect(val.Elem())
 		}
-		// Now go inside the newly initialized pointer
-		sanitizeReflect(val.Elem())
 
 	case reflect.Struct:
 		for i := 0; i < val.NumField(); i++ {
