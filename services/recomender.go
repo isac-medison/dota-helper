@@ -522,10 +522,12 @@ func defaultWeights() *models.ScoringWeights {
 		Comfort:             0.5,
 		MatchupPrior:        100,
 		MetaPrior:           500,
-		ComfortPrior:        20,
+		// The player's own winrate is noisy on a few games, so it's shrunk hard; what counts most is
+		// having played the hero at all: up to Comfort*ExperiencePoints = 6 points at ExperienceGames.
+		ComfortPrior:        40,
 		MinPositionShare:    0.1,
 		MinComfortGames:     5,
-		ExperiencePoints:    3,
+		ExperiencePoints:    12,
 		ExperienceGames:     20,
 		ComfortHalfLifeDays: 90,
 	}
