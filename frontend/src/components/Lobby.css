@@ -1,0 +1,172 @@
+.lobby {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.lobby h2 {
+  margin: 0;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.lobby__team {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.lobby__team--enemies {
+  --team: var(--dire);
+}
+
+.lobby__team--allies {
+  --team: var(--radiant);
+}
+
+.lobby__team h3 {
+  margin: 0;
+  color: var(--team);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.lobby__team > ul {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lobby__team > ul:empty {
+  display: none;
+}
+
+.lobby__input {
+  width: 170px;
+}
+
+.lobby-player {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--team);
+  border-radius: 8px;
+  background: var(--bg);
+  font-size: 12px;
+}
+
+.lobby-player__who {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 124px;
+  min-width: 0;
+  flex-shrink: 0;
+}
+
+.lobby-player__who img {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  box-shadow: 0 0 0 1px var(--border-strong);
+}
+
+.lobby-player__who div {
+  min-width: 0;
+}
+
+.lobby-player__who strong,
+.lobby-player__who small {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lobby-player__who strong {
+  color: var(--text-h);
+  font-size: 13px;
+}
+
+.lobby-player__note {
+  flex: 1;
+  font-style: italic;
+}
+
+.lobby-player__heroes {
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lobby-player__heroes button,
+.lobby-player__heroes div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.lobby-player__heroes button {
+  cursor: pointer;
+}
+
+.lobby-player__heroes img {
+  width: 42px;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 4px;
+  box-shadow: 0 0 0 1px var(--border);
+}
+
+.lobby-player__heroes button:hover:not(:disabled) img {
+  box-shadow: 0 0 0 2px var(--dire);
+}
+
+.lobby-player__heroes button:disabled,
+.lobby-player__heroes div[data-used="true"] {
+  opacity: 0.3;
+}
+
+.lobby-player__heroes button:disabled {
+  cursor: default;
+}
+
+.lobby-player__remove {
+  align-self: flex-start;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: none;
+  color: var(--text);
+  line-height: 20px;
+  cursor: pointer;
+}
+
+.lobby-player__remove:hover {
+  background: var(--dire);
+  color: #fff;
+}

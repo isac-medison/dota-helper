@@ -158,7 +158,27 @@ func (s *Recommendations) Threats(req models.RecommendationRequest) ([]models.Th
 		Bans:    req.Bans,
 	}
 
-	threats := Threats(draft, meta, nil)
+	// Enemy players with a known profile: for each hero, whoever of them plays it best counts.
+	var comforts []map[HeroPosKey]HeroStat
+	for _, id := range req.EnemySteamIds {
+		if id == "" {
+			continue
+		}
+		player, err := s.Players.Get(id, false)
+		if err != nil {
+			log.Printf("Couldn't load enemy profile %s, going on without it: %v", id, err)
+			continue
+		}
+		if len(player.Heroes) > 0 {
+			comforts = append(comforts, comfortOf(player))
+		}
+	}
+	var comfort map[HeroPosKey]HeroStat
+	if len(comforts) > 0 {
+		comfort = BestOfParty(comforts, nil)
+	}
+
+	threats := Threats(draft, meta, comfort, nil)
 	if len(threats) > Top {
 		threats = threats[:Top]
 	}

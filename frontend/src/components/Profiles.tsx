@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { resolveId } from "../api/lobby";
 import { useProfileLabel } from "../api/players";
 import { DRAG_PARTY_SLOT, DRAG_PROFILE } from "../draft/draft";
 import "./Profiles.css";
@@ -11,22 +12,57 @@ type SteamIdInputProps = {
   onCancel: () => void;
 };
 
-function SteamIdInput({ initial, className, onSubmit, onCancel }: SteamIdInputProps) {
+// A pasted profile link (https://steamcommunity.com/profiles/7656…/) is cut down to the Steam ID in it.
+function idFromLink(text: string) {
+  return /steamcommunity\.com\/profiles\/(\d+)/i.exec(text)?.[1] ?? text;
+}
+
+// A link with a custom name has no ID in it: Steam is asked whose profile it is.
+const CUSTOM_LINK = /steamcommunity\.com\/id\/[^/?#\s]+/i;
+
+export function SteamIdInput({ initial, className, onSubmit, onCancel }: SteamIdInputProps) {
   const [value, setValue] = useState(initial);
-  const invalid = value !== "" && !/^\d+$/.test(value);
+  // The custom link Steam knows no profile for.
+  const [unknown, setUnknown] = useState<string | null>(null);
+  const looking = CUSTOM_LINK.test(value) && unknown !== value;
+  const invalid = value !== "" && !looking && !/^\d+$/.test(value);
+
+  useEffect(() => {
+    if (!looking) return;
+    let current = true;
+    resolveId(value)
+      .catch(() => null)
+      .then((id) => {
+        if (!current) return;
+        if (id) setValue(id);
+        else setUnknown(value);
+      });
+    return () => {
+      current = false;
+    };
+  }, [looking, value]);
+
   const submit = () => {
-    if (!invalid) onSubmit(value || null);
+    if (!invalid && !looking) onSubmit(value || null);
   };
   return (
     <input
       className={className}
       autoFocus
-      inputMode="numeric"
-      placeholder="Steam ID / Friend ID"
+      placeholder="Steam ID / Friend ID / посилання на профіль"
       value={value}
       aria-invalid={invalid}
-      title={invalid ? "Тільки цифри: Steam ID64 або Friend ID" : undefined}
-      onChange={(e) => setValue(e.target.value.trim())}
+      aria-busy={looking}
+      title={
+        looking
+          ? "Питаю у Steam, чий це профіль…"
+          : unknown === value
+            ? "Steam не знає профілю за цим посиланням"
+            : invalid
+              ? "Steam ID64, Friend ID або посилання на профіль Steam"
+              : undefined
+      }
+      onChange={(e) => setValue(idFromLink(e.target.value.trim()))}
       onBlur={submit}
       onKeyDown={(e) => {
         if (e.key === "Enter") submit();

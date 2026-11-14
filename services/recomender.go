@@ -306,14 +306,16 @@ func OnFreePositions(
 	return threats
 }
 
-func Threats(draft DraftInput, meta *MetaSnapshot, weights *models.ScoringWeights) []models.Threat {
+// Threats are the enemy's best next picks. comfort is what the enemy players themselves play, when
+// their profiles are known: a hero one of them is good on is a bigger threat.
+func Threats(draft DraftInput, meta *MetaSnapshot, comfort map[HeroPosKey]HeroStat, weights *models.ScoringWeights) []models.Threat {
 	swappedDraft := DraftInput{
 		Allies:  draft.Enemies,
 		Enemies: draft.Allies,
 		Bans:    draft.Bans,
 		Pinned:  nil,
 	}
-	return OnFreePositions(swappedDraft, meta, nil, weights)
+	return OnFreePositions(swappedDraft, meta, comfort, weights)
 }
 
 func BestOfParty(players []map[HeroPosKey]HeroStat, weights *models.ScoringWeights) map[HeroPosKey]HeroStat {

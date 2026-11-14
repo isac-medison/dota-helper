@@ -7,6 +7,8 @@ import { Recommend, Threats } from "../../bindings/dota-helper/services/recommen
 
 export type RecommendationRequest = Omit<components["schemas"]["RecommendationRequest"], "steamIds"> & {
   steamIds: (string | null)[] | null;
+  // The enemy players whose profiles are known, in no particular order.
+  enemySteamIds: (string | null)[];
 };
 export type Recommendations = components["schemas"]["RecommendationsDto"];
 export type Recommendation = components["schemas"]["Recommendation"];

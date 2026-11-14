@@ -10,6 +10,8 @@ type Props = {
   positions?: Map<number, number>;
   // The enemy's picks (bans): scores are then the enemy's gain.
   forEnemy?: boolean;
+  // With forEnemy: the enemy players' own profiles are known, so their comfort is part of the threat.
+  enemyComfort?: boolean;
 };
 
 const COMPONENTS = [
@@ -48,8 +50,12 @@ function reasons(r: Recommendation, heroesById: Map<number, Hero>) {
     }));
 }
 
-export function RecommendationList({ items, heroesById, onPick, positions, forEnemy }: Props) {
-  const components = forEnemy ? COMPONENTS.filter((c) => c.key !== "comfort") : COMPONENTS;
+export function RecommendationList({ items, heroesById, onPick, positions, forEnemy, enemyComfort }: Props) {
+  const components = !forEnemy
+    ? COMPONENTS
+    : enemyComfort
+      ? COMPONENTS.map((c) => (c.key === "comfort" ? { ...c, title: "Ігри ворожих гравців на герої" } : c))
+      : COMPONENTS.filter((c) => c.key !== "comfort");
   
   return (
     <ol className="recommendations">

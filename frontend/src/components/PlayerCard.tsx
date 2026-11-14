@@ -1,9 +1,8 @@
 import type { Hero } from "../api/heroes";
-import type { Player } from "../api/players";
+import { rankName, type Player } from "../api/players";
 import type { Position } from "../draft/draft";
 import "./PlayerCard.css";
 
-const MEDALS = ["Herald", "Guardian", "Crusader", "Archon", "Legend", "Ancient", "Divine", "Immortal"];
 const TOP_HEROES = 6;
 
 type Props = {
@@ -11,14 +10,6 @@ type Props = {
   heroesById: Map<number, Hero>;
   myPosition: Position | null;
 };
-
-// Rank tier is medal * 10 + stars: 54 = Legend 4, 80 = Immortal.
-function rankName(rankTier: number | null) {
-  const medal = rankTier ? MEDALS[Math.floor(rankTier / 10) - 1] : undefined;
-  if (!medal) return "Без рангу";
-  const stars = rankTier! % 10;
-  return stars > 0 ? `${medal} ${stars}` : medal;
-}
 
 export function PlayerCard({ player, heroesById, myPosition }: Props) {
   // Heroes arrive sorted by games.

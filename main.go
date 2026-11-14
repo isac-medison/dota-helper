@@ -108,6 +108,7 @@ func main() {
 			application.NewService(playersService),
 			application.NewService(&services.Recommendations{Players: playersService, MetaCache: metaCache}),
 			application.NewService(&services.Meta{DB: db, MetaImporter: metaImporter, Token: stratzToken}),
+			application.NewService(&services.LobbyScan{Http: openDotaHttp}),
 		},
 		Assets: application.AssetOptions{
 			Handler: application.AssetFileServerFS(assets),

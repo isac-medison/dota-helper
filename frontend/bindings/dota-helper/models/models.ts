@@ -37,6 +37,96 @@ export interface HeroImpact {
     "points": number;
 }
 
+/**
+ * LobbyCapture is what a calibration hotkey press recorded.
+ */
+export interface LobbyCapture {
+    /**
+     * "point": remember the cursor position; "right": the same, for a right click; "done": the recording is over.
+     */
+    "key": string;
+    "x": number;
+    "y": number;
+
+    /**
+     * The corner of the window that was active at that moment, if there was one.
+     */
+    "window": LobbyPoint | null;
+}
+
+/**
+ * LobbyPoint is a screen position in pixels, as the OS reports the cursor.
+ */
+export interface LobbyPoint {
+    "x": number;
+    "y": number;
+}
+
+export interface LobbyScanRequest {
+    /**
+     * One point per player to go through, in order.
+     */
+    "players": LobbyPoint[] | null;
+    "steps": LobbyStep[] | null;
+
+    /**
+     * Start at once after a short countdown instead of waiting for the hotkey in the game.
+     */
+    "noHotkey": boolean;
+
+    /**
+     * Only show where the clicks would land: the cursor goes to every point, nothing is clicked or pressed.
+     */
+    "dryRun": boolean;
+
+    /**
+     * How long the cursor rests on a point before the click, for the game to notice what is under it.
+     */
+    "hoverMs": number;
+}
+
+export interface LobbyScanResult {
+    /**
+     * What ended up in the clipboard for each player ("" when nothing was copied).
+     */
+    "raw": string[] | null;
+    "aborted": boolean;
+}
+
+/**
+ * LobbyStep is one action of the flow repeated for every player.
+ */
+export interface LobbyStep {
+    /**
+     * "click", "rightClick", "doubleClick", "keys" or "wait".
+     */
+    "kind": string;
+    "x": number;
+    "y": number;
+
+    /**
+     * The point is an offset from the player's own point (a menu that opens under the cursor)
+     * rather than a fixed place on the screen (a button of the profile window).
+     */
+    "relative": boolean;
+
+    /**
+     * The point is an offset from the corner of the window that is active when the step runs
+     * (a Steam window that opens over the game and may have been moved since the recording).
+     */
+    "window": boolean;
+
+    /**
+     * For "keys": a combination like "ctrl+c" or "esc".
+     */
+    "keys": string;
+
+    /**
+     * Pause after the step, for the game to open what was clicked.
+     */
+    "delayMs": number;
+}
+
 export interface MetaStatusDto {
     "importing": boolean;
     "lastImportFailed": boolean;
@@ -115,6 +205,11 @@ export interface RecommendationRequest {
     "bans": number[] | null;
     "myPosition": Position | null;
     "openPositions": boolean;
+
+    /**
+     * Profiles of the enemy players, in no particular order: what they play weighs in on who to ban.
+     */
+    "enemySteamIds": string[] | null;
     "bracket": Bracket | null;
 }
 

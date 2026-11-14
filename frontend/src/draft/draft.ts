@@ -51,6 +51,7 @@ export type DraftAction =
   | { type: "move"; from: Slot; to: Slot }
   | { type: "arrange"; allies: (number | null)[] }
   | { type: "scan"; allies: ScannedTeam; enemies: ScannedTeam }
+  | { type: "ban"; heroId: number }
   | { type: "unban"; heroId: number }
   | { type: "cm"; cm: DraftState["cm"] }
   | { type: "reset" };
@@ -67,7 +68,7 @@ export const initialDraftState: DraftState = {
 };
 
 // After these the target jumps to the next CM turn; picking a slot by hand or swapping heroes doesn't move it.
-const CM_FOLLOWS: DraftAction["type"][] = ["pick", "clear", "unban", "scan", "cm", "reset"];
+const CM_FOLLOWS: DraftAction["type"][] = ["pick", "clear", "ban", "unban", "scan", "cm", "reset"];
 
 export function usedHeroIds(draft: Draft): Set<number> {
   return new Set(
@@ -154,6 +155,12 @@ function reduce(state: DraftState, action: DraftAction): DraftState {
         },
       };
     }
+
+    // A ban from outside the hero list (a click on what an enemy plays): the cursor stays where it is.
+    case "ban":
+      return usedHeroIds(draft).has(action.heroId)
+        ? state
+        : { ...state, draft: { ...draft, bans: [...draft.bans, action.heroId] } };
 
     case "unban":
       return {

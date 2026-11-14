@@ -9,6 +9,11 @@ export {
 export type {
     Hero,
     HeroImpact,
+    LobbyCapture,
+    LobbyPoint,
+    LobbyScanRequest,
+    LobbyScanResult,
+    LobbyStep,
     MetaStatusDto,
     PlayerDto,
     PlayerHeroDto,

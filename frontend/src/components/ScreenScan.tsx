@@ -2,25 +2,16 @@ import { useEffect, useEffectEvent, useRef, useState, type Dispatch } from "reac
 import type { Hero } from "../api/heroes";
 import { DRAG_HERO, type DraftAction } from "../draft/draft";
 import { loadIconTemplates, scan, taughtTemplates, teach, type ScannedSlot } from "../scan/scan";
+import { loadSide, saveSide, type Side } from "../scan/side";
 import "./ScreenScan.css";
 
-const SIDE_KEY = "scanSide";
 const AUTO_MS = 3000;
-type Side = "left" | "right";
 
 type Props = {
   heroes: Hero[];
   heroesById: Map<number, Hero>;
   dispatch: Dispatch<DraftAction>;
 };
-
-function loadSide(): Side {
-  try {
-    return localStorage.getItem(SIDE_KEY) === "right" ? "right" : "left";
-  } catch {
-    return "left";
-  }
-}
 
 // Fills the draft from a screenshot of the game: pasted (Print Screen / Win+Shift+S, then Ctrl+V) or grabbed
 // from a shared window. A portrait it can't place (an arcana, a persona) is taught by dropping the hero on it.
@@ -122,11 +113,7 @@ export function ScreenScan({ heroes, heroesById, dispatch }: Props) {
 
   function changeSide(next: Side) {
     setSide(next);
-    try {
-      localStorage.setItem(SIDE_KEY, next);
-    } catch {
-      // not critical
-    }
+    saveSide(next);
     if (slots) apply(slots, next);
   }
 

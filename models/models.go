@@ -117,6 +117,8 @@ type RecommendationRequest struct {
 	Bans          []int     `json:"bans"`
 	MyPosition    *Position `json:"myPosition"`
 	OpenPositions bool      `json:"openPositions"`
+	// Profiles of the enemy players, in no particular order: what they play weighs in on who to ban.
+	EnemySteamIds []string  `json:"enemySteamIds"`
 	Bracket       *Bracket  `json:"bracket"`
 }
 
@@ -314,4 +316,58 @@ type OpenDotaPublicMatch struct {
 	Duration    int    `json:"duration"`
 	RadiantTeam string `json:"radiant_team"`
 	DireTeam    string `json:"dire_team"`
+}
+
+// --- Lobby scan: clicking through the players of a match to collect their Steam IDs ---
+
+// LobbyPoint is a screen position in pixels, as the OS reports the cursor.
+type LobbyPoint struct {
+	X int `json:"x"`
+	Y int `json:"y"`
+}
+
+// LobbyStep is one action of the flow repeated for every player.
+type LobbyStep struct {
+	// "click", "rightClick", "doubleClick", "keys" or "wait".
+	Kind string `json:"kind"`
+	X    int    `json:"x"`
+	Y    int    `json:"y"`
+	// The point is an offset from the player's own point (a menu that opens under the cursor)
+	// rather than a fixed place on the screen (a button of the profile window).
+	Relative bool `json:"relative"`
+	// The point is an offset from the corner of the window that is active when the step runs
+	// (a Steam window that opens over the game and may have been moved since the recording).
+	Window bool `json:"window"`
+	// For "keys": a combination like "ctrl+c" or "esc".
+	Keys string `json:"keys"`
+	// Pause after the step, for the game to open what was clicked.
+	DelayMs int `json:"delayMs"`
+}
+
+// LobbyCapture is what a calibration hotkey press recorded.
+type LobbyCapture struct {
+	// "point": remember the cursor position; "right": the same, for a right click; "done": the recording is over.
+	Key string `json:"key"`
+	X   int    `json:"x"`
+	Y   int    `json:"y"`
+	// The corner of the window that was active at that moment, if there was one.
+	Window *LobbyPoint `json:"window"`
+}
+
+type LobbyScanRequest struct {
+	// One point per player to go through, in order.
+	Players []LobbyPoint `json:"players"`
+	Steps   []LobbyStep  `json:"steps"`
+	// Start at once after a short countdown instead of waiting for the hotkey in the game.
+	NoHotkey bool `json:"noHotkey"`
+	// Only show where the clicks would land: the cursor goes to every point, nothing is clicked or pressed.
+	DryRun bool `json:"dryRun"`
+	// How long the cursor rests on a point before the click, for the game to notice what is under it.
+	HoverMs int `json:"hoverMs"`
+}
+
+type LobbyScanResult struct {
+	// What ended up in the clipboard for each player ("" when nothing was copied).
+	Raw     []string `json:"raw"`
+	Aborted bool     `json:"aborted"`
 }

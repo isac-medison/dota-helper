@@ -1,11 +1,13 @@
 import { useMemo, useReducer, useRef, useState } from "react";
 import { useHeroes } from "./api/heroes";
 import { useMetaStatus } from "./api/meta";
-import { usePlayer } from "./api/players";
+import { accountId, usePlayer } from "./api/players";
 import { useRecommendations, useThreats } from "./api/recommendations";
 import { AppHeader } from "./components/AppHeader";
 import { DraftBoard } from "./components/DraftBoard";
 import { HeroPicker } from "./components/HeroPicker";
+import { Lobby } from "./components/Lobby";
+import { LobbyScan } from "./components/LobbyScan";
 import { PlayerCard } from "./components/PlayerCard";
 import { SavedProfiles } from "./components/Profiles";
 import { ScreenScan } from "./components/ScreenScan";
@@ -71,6 +73,8 @@ export default function App() {
   const [state, dispatch] = useReducer(draftReducer, initialDraftState);
   const [party, setParty] = useState(loadParty);
   const [profiles, setProfiles] = useState(loadProfiles);
+  // The enemy players whose Steam IDs are known (typed in or found by the lobby scan), in no particular order.
+  const [enemyIds, setEnemyIds] = useState<(string | null)[]>(() => Array(TEAM_SIZE).fill(null));
   // Recommendations are for the ally slot the cursor was last on, with that slot's player's comfort.
   const myPosition = (state.allyIndex + 1) as Position;
   const steamId = party[state.allyIndex];
@@ -78,12 +82,14 @@ export default function App() {
   // null = take it from the party's average rank.
   // The party hasn't split positions yet: slots are just slots, positions are guessed from the heroes.
   const [openPositions, setOpenPositions] = useState(false);
-  const request = { ...state.draft, myPosition, steamIds: party, bracket, openPositions };
+  const request = { ...state.draft, myPosition, steamIds: party, enemySteamIds: [], bracket, openPositions };
   const dataVersion = `${meta?.updatedAtUtc}|${player.data?.fetchedAtUtc}`;
   const recommendations = useRecommendations(request, dataVersion);
   // Banning or filling an enemy slot: show what the enemy wants instead of my picks.
   const forEnemy = state.target.team !== "allies";
-  const threats = useThreats(request, dataVersion, forEnemy);
+  // Their own heroes count only here: who to ban depends on what these enemies play.
+  const enemiesKnown = enemyIds.some((id) => id !== null);
+  const threats = useThreats({ ...request, enemySteamIds: enemyIds }, dataVersion, forEnemy);
   const threatPositions = useMemo(
     () => new Map(threats.data?.map((t) => [t.recommendation.heroId, t.position])),
     [threats.data],
@@ -132,6 +138,41 @@ export default function App() {
     if (me >= 0 && me !== state.allyIndex) dispatch({ type: "target", target: { team: "allies", index: me } });
   }
 
+  // One player is one enemy: adding an ID that's already there moves it.
+  function changeEnemy(index: number, id: string | null) {
+    // One row per player: the same account in another slot (as a Steam ID or a friend ID) gives way.
+    const same = (old: string | null) => id !== null && old !== null && accountId(old) === accountId(id);
+    setEnemyIds(enemyIds.map((old, i) => (i === index ? id : same(old) ? null : old)));
+  }
+
+  // What the lobby scan found. Allies go into free slots without moving anyone already placed;
+  // a full team (all five found) also clears out players left from another match.
+  function applyLobby(allies: string[], enemies: string[]) {
+    // A scan that opened the same profile twice still gives one row for that player.
+    const unique = enemies.filter((id, i) => enemies.findIndex((other) => accountId(other) === accountId(id)) === i);
+    if (unique.length > 0) setEnemyIds(Array.from({ length: TEAM_SIZE }, (_, i) => unique[i] ?? null));
+    if (allies.length === 0) return;
+
+    const among = (ids: (string | null)[], id: string) => ids.some((other) => other !== null && accountId(other) === accountId(id));
+    const stays = (id: string) => among(allies, id) || (allies.length < TEAM_SIZE && profiles.includes(id));
+    const next = party.map((id) => (id !== null && stays(id) ? id : null));
+    for (const id of allies) {
+      const free = next.indexOf(null);
+      if (free >= 0 && !among(next, id)) next[free] = id;
+    }
+    setParty(next);
+    save(PARTY_KEY, next);
+  }
+
+  // A new draft is a new match: the enemies and the strangers on my team are gone, saved friends stay.
+  function resetDraft() {
+    dispatch({ type: "reset" });
+    setEnemyIds(Array(TEAM_SIZE).fill(null));
+    const next = party.map((id) => (id !== null && profiles.includes(id) ? id : null));
+    setParty(next);
+    save(PARTY_KEY, next);
+  }
+
   function swapParty(from: number, to: number) {
     const next = party.with(from, party[to]).with(to, party[from]);
     setParty(next);
@@ -177,7 +218,7 @@ export default function App() {
                 <option value="open">Не розписані — пікаємо, ролі потім</option>
               </select>
             </label>
-            <button type="button" onClick={() => dispatch({ type: "reset" })}>
+            <button type="button" onClick={resetDraft}>
               Очистити драфт
             </button>
 
@@ -191,6 +232,8 @@ export default function App() {
           </div>
 
           <ScreenScan heroes={heroes} heroesById={heroesById} dispatch={dispatch} />
+
+          <LobbyScan onFound={applyLobby} />
 
           <DraftBoard
             state={state}
@@ -221,6 +264,15 @@ export default function App() {
             onUse={(id) => changeParty(state.allyIndex, id)}
           />
 
+          <Lobby
+            heroesById={heroesById}
+            allies={party}
+            enemies={enemyIds}
+            used={used}
+            onEnemyChange={changeEnemy}
+            onBan={(heroId) => dispatch({ type: "ban", heroId })}
+          />
+
           {player.isFetching && <p>Завантаження профілю…</p>}
           {player.error && <p>Не вдалося завантажити профіль: {player.error.message}</p>}
           {player.data === null && <p>STRATZ не знає гравця на Pos {myPosition} — перевір Steam ID.</p>}
@@ -232,7 +284,10 @@ export default function App() {
         {forEnemy ? (
           <section className="draft-page__recommendations">
             <h2>{state.target.team === "bans" ? "Кого банити" : "Небезпечні піки ворога"}</h2>
-            <p className="hint">Що ворогу дав би кожен пік на його вільних позиціях. Клік — у бани / ворожий слот.</p>
+            <p className="hint">
+              Що ворогу дав би кожен пік на його вільних позиціях
+              {enemiesKnown && ", з урахуванням того, на чому грають ці вороги"}. Клік — у бани / ворожий слот.
+            </p>
             {threats.error ? (
               <p>{threats.error.message}</p>
             ) : threats.data ? (
@@ -242,6 +297,7 @@ export default function App() {
                 onPick={(heroId) => boardDispatch({ type: "pick", heroId })}
                 positions={threatPositions}
                 forEnemy
+                enemyComfort={enemiesKnown}
               />
             ) : (
               <p>Рахую…</p>

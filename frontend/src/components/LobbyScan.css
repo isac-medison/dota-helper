@@ -1,0 +1,253 @@
+.lobby-scan {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 14px;
+}
+
+.lobby-scan__controls,
+.lobby-scan__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.lobby-scan button,
+.lobby-scan select,
+.lobby-scan input:not([type="checkbox"]) {
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text-h);
+  font: inherit;
+}
+
+.lobby-scan button {
+  cursor: pointer;
+}
+
+.lobby-scan button:hover:not(:disabled) {
+  background: var(--accent-bg);
+}
+
+.lobby-scan button:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
+.lobby-scan button[aria-pressed="true"] {
+  border-color: var(--accent-border);
+  background: var(--accent-bg);
+  color: var(--accent);
+}
+
+.lobby-scan .lobby-scan__cancel {
+  border-color: color-mix(in srgb, var(--bad) 60%, transparent);
+  color: var(--bad);
+}
+
+.lobby-scan .hint {
+  margin: 0;
+}
+
+/* Waiting for a key pressed in the game: the one line to read before switching to it. */
+.lobby-scan > .hint[data-busy="true"] {
+  padding: 6px 10px;
+  border-left: 3px solid var(--accent);
+  border-radius: 0 8px 8px 0;
+  background: var(--accent-bg);
+  color: var(--text-h);
+  opacity: 1;
+}
+
+.lobby-scan__calibration {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--code-bg);
+}
+
+.lobby-scan__part {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.lobby-scan__part h3 {
+  margin: 0;
+  color: var(--text-h);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.lobby-scan__points {
+  color: var(--good);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.lobby-scan__steps {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: step;
+}
+
+.lobby-scan__steps li {
+  display: grid;
+  grid-template-columns: 16px minmax(0, 1fr);
+  gap: 4px 6px;
+  padding: 5px 6px;
+  border-radius: 8px;
+  background: var(--surface);
+  font-size: 12px;
+  /* The page line height is for text; these rows are controls. */
+  line-height: 18px;
+  counter-increment: step;
+}
+
+.lobby-scan__steps li::before {
+  content: counter(step);
+  grid-row: 1 / span 2;
+  color: var(--accent);
+  font-weight: 700;
+  line-height: 24px;
+  text-align: center;
+}
+
+.lobby-scan__step-head,
+.lobby-scan__step-params {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.lobby-scan__step-params {
+  color: var(--text);
+}
+
+.lobby-scan__steps label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.lobby-scan__delay {
+  margin-left: auto;
+}
+
+.lobby-scan__steps select,
+.lobby-scan__steps input:not([type="checkbox"]),
+.lobby-scan__steps button {
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-size: 12px;
+}
+
+.lobby-scan .lobby-scan__number {
+  width: 62px;
+  font-variant-numeric: tabular-nums;
+}
+
+.lobby-scan .lobby-scan__keys {
+  flex: 1;
+  min-width: 110px;
+  font-family: var(--mono);
+}
+
+.lobby-scan__step-tools {
+  display: flex;
+  gap: 2px;
+  margin-left: auto;
+}
+
+.lobby-scan__map {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.lobby-scan__map svg {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.lobby-scan__screen {
+  fill: var(--page);
+}
+
+.lobby-scan__path {
+  fill: none;
+  stroke: var(--accent);
+  stroke-dasharray: 1.5%;
+  opacity: 0.5;
+}
+
+.lobby-scan__player {
+  fill: transparent;
+  stroke: var(--radiant);
+  cursor: pointer;
+}
+
+.lobby-scan__player[data-side="right"] {
+  stroke: var(--dire);
+}
+
+.lobby-scan__player[data-selected="true"] {
+  fill: color-mix(in srgb, var(--accent) 35%, transparent);
+}
+
+.lobby-scan__click circle {
+  fill: var(--accent);
+  stroke: var(--page);
+}
+
+.lobby-scan__click[data-right="true"] circle {
+  fill: var(--warn);
+}
+
+.lobby-scan__click text {
+  fill: var(--text-h);
+  font-weight: 700;
+  paint-order: stroke;
+  stroke: var(--page);
+  stroke-width: 0.4%;
+}
+
+.lobby-scan__coords {
+  display: grid;
+  grid-template-columns: auto auto auto 1fr;
+  gap: 2px 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 12px;
+}
+
+.lobby-scan__coords li {
+  display: contents;
+}
+
+.lobby-scan__coords b {
+  color: var(--accent);
+}
+
+.lobby-scan__coords code {
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.lobby-scan__coords small {
+  color: var(--text);
+}
