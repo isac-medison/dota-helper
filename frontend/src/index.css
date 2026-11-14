@@ -1,3 +1,32 @@
+/* The interface font; one file per weight covers Latin and Cyrillic. */
+@font-face {
+  font-family: "Iosevka";
+  font-weight: 400;
+  font-display: swap;
+  src: url("@fontsource/iosevka/files/iosevka-latin-400-normal.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Iosevka";
+  font-weight: 500;
+  font-display: swap;
+  src: url("@fontsource/iosevka/files/iosevka-latin-500-normal.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Iosevka";
+  font-weight: 600;
+  font-display: swap;
+  src: url("@fontsource/iosevka/files/iosevka-latin-600-normal.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Iosevka";
+  font-weight: 700;
+  font-display: swap;
+  src: url("@fontsource/iosevka/files/iosevka-latin-700-normal.woff2") format("woff2");
+}
+
 @font-face {
   font-family: "Inter";
   font-weight: 500;
@@ -30,11 +59,11 @@
   --radius: 10px;
   --shadow: rgba(0, 0, 0, 0.45) 0 10px 24px -8px;
 
-  --sans: system-ui, "Segoe UI", Roboto, sans-serif;
-  --heading: "Inter", system-ui, "Segoe UI", Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
+  --sans: "Iosevka", system-ui, "Segoe UI", Roboto, sans-serif;
+  --heading: "Iosevka", "Inter", system-ui, "Segoe UI", Roboto, sans-serif;
+  --mono: "Iosevka", ui-monospace, Consolas, monospace;
 
-  font: 18px/145% var(--sans);
+  font: 600 18px/145% var(--sans);
   letter-spacing: 0.18px;
   color-scheme: dark;
   color: var(--text);
@@ -151,4 +180,13 @@ code {
   line-height: 135%;
   padding: 4px 8px;
   background: var(--code-bg);
+}
+
+/* Controls take the browser font unless told otherwise. */
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+  font-weight: inherit;
 }
