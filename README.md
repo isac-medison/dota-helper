@@ -1,7 +1,11 @@
 # Dota Helper
 
 <p align="center">
-  <img src="build/appicon.png" alt="Dota Helper icon" width="120"/>
+  <img src="docs/banner.png" alt="Dota Helper: draft assistant for Dota 2" width="100%"/>
+</p>
+
+<p align="center">
+  Made by <a href="https://www.instagram.com/v_sviderskyi/">@v_sviderskyi</a>
 </p>
 
 A desktop draft assistant for Dota 2. During the pick phase it tells you which hero to take for your position, which enemy picks to ban, and what the players in your match actually play. It sits next to the game in its own window; the interface is in Ukrainian.
@@ -112,6 +116,10 @@ wails3 build
 ```
 
 The header shows how old the meta is; the "Оновити" button next to it downloads a fresh one from STRATZ.
+
+## Author
+
+Instagram: [@v_sviderskyi](https://www.instagram.com/v_sviderskyi/)
 
 ## Disclaimer
 
