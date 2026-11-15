@@ -5,7 +5,9 @@
 </p>
 
 <p align="center">
-  Made by <a href="https://www.instagram.com/v_sviderskyi/">@v_sviderskyi</a>
+  <a href="https://www.instagram.com/v_sviderskyi/"><img src="https://img.shields.io/badge/@v__sviderskyi-E4405F?style=flat-square&logo=instagram&logoColor=white" alt="Instagram: @v_sviderskyi" height="28"/></a>
+  <a href="https://discord.com/users/536559776176406558"><img src="https://img.shields.io/badge/neophorn96-5865F2?style=flat-square&logo=discord&logoColor=white" alt="Discord: neophorn96" height="28"/></a>
+  <a href="https://t.me/neophron96"><img src="https://img.shields.io/badge/@neophron96-26A5E4?style=flat-square&logo=telegram&logoColor=white" alt="Telegram: @neophron96" height="28"/></a>
 </p>
 
 A desktop draft assistant for Dota 2. During the pick phase it tells you which hero to take for your position, which enemy picks to ban, and what the players in your match actually play. It sits next to the game in its own window; the interface is in Ukrainian.
@@ -119,7 +121,9 @@ The header shows how old the meta is; the "Оновити" button next to it dow
 
 ## Author
 
-Instagram: [@v_sviderskyi](https://www.instagram.com/v_sviderskyi/)
+- Instagram: [@v_sviderskyi](https://www.instagram.com/v_sviderskyi/)
+- Discord: [neophorn96](https://discord.com/users/536559776176406558)
+- Telegram: [@neophron96](https://t.me/neophron96)
 
 ## Disclaimer
 
